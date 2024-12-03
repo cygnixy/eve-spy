@@ -134,8 +134,8 @@ end
 function M.main(args: any): string
 
     local config = {
-        presence_threshold = 3,
-        absence_threshold = 3,
+        presence_threshold = args[1],
+        absence_threshold = args[2],
     }
 
     local current_objects = M.process_data(eve.overview_windows) or {}

@@ -1,5 +1,3 @@
--- Filename: test_main.lua
-
 -- Require the assertions module
 local testy = require("./testy")
 local base64 = require("../actions/base64")
@@ -12,8 +10,8 @@ function tot:testPresenceHandling()
     local mock_get_fn = function(key)
         if key == "presence_map" then
             return {
-                [overview_spy.encode_key("Object1","TypeA")] = { count = 2, reported = false }, -- Почти достиг порога
-                [overview_spy.encode_key("Object2","TypeB")] = { count = 1, reported = false }  -- Находится на пороге
+                [overview_spy.encode_key("Object1","TypeA")] = { count = 2, reported = false }, -- Almost reached presence threshold
+                [overview_spy.encode_key("Object2","TypeB")] = { count = 1, reported = false }  -- Below presence threshold
             }
         elseif key == "absence_map" then
             return {}

@@ -1,5 +1,8 @@
+presence_threshold = 3
+absence_threshold = 3
+
 -> main {
     @repeat_until_success -> {
-        overview_spy()
+        overview_spy(presence_threshold, absence_threshold)
     }
 }

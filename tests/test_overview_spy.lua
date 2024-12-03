@@ -1,5 +1,3 @@
--- Filename: test_main.lua
-
 -- Require the assertions module
 local testy = require("./testy")
 local base64 = require("../actions/base64")
