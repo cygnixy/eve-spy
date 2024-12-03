@@ -1,0 +1,10 @@
+{
+    "name": "eve-spy",
+    "publisher": "Cygnixy Team",
+    "description": "Bot for testing",
+    "repository": {
+        "url": "https://github.com/cygnixy/eve-spy.git"
+    },
+    "version": "0.1.0",
+    "edition": "2024"
+}
