@@ -112,7 +112,7 @@ end
 
 -- Event handler function to process presence and absence events
 function M.event_handler(event_type: string, key: string, data: any)
-    local current_system_name: string = M.get_nested_value(cygnixy.eve, "info_panel_container", "info_panel_location_info",
+    local current_system_name: string = M.get_nested_value(eve, "info_panel_container", "info_panel_location_info",
         "current_solar_system_name") or ""
 
     if event_type == "presence" then
@@ -138,7 +138,7 @@ function M.main(args: any): string
         absence_threshold = args[2],
     }
 
-    local current_objects = M.process_data(cygnixy.eve.overview_windows) or {}
+    local current_objects = M.process_data(eve.overview_windows) or {}
     
     change_monitor.detect(config, M.event_handler, cygnixy.bb_get, cygnixy.bb_set, current_objects)
 
