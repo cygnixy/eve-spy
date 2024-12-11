@@ -20,8 +20,8 @@ local function handle_presence(
     current_objects: { [string]: any },
     presence_map: { [string]: { count: number, reported: boolean } },
     previous_objects: { [string]: any },
-    config: { presence_threshold: number, absence_threshold: number },
-    callback_fn: (string, string, any) -> ()
+    config: any,
+    callback_fn: (string, string, any, any) -> ()
 )
     for key, data in current_objects do
         local presence = presence_map[key]
@@ -31,7 +31,7 @@ local function handle_presence(
 
             -- Check if the presence count has reached the threshold and hasn't been reported yet
             if presence.count >= config.presence_threshold and not presence.reported then
-                callback_fn("presence", key, data)
+                callback_fn("presence", key, data, config)
 
                 -- Mark the event as reported to avoid duplicate callbacks
                 presence.reported = true
@@ -52,8 +52,8 @@ local function handle_absence(
     presence_map: { [string]: { count: number, reported: boolean } },
     previous_objects: { [string]: any },
     absence_map: { [string]: number },
-    config: { presence_threshold: number, absence_threshold: number },
-    callback_fn: (string, string, any) -> ()
+    config: any,
+    callback_fn: (string, string, any, any) -> ()
 ): { [string]: number }
     local merged_keys = merge_keys(previous_objects, absence_map)
     local new_absence_map: { [string]: number } = {}
@@ -63,7 +63,7 @@ local function handle_absence(
             local count = (absence_map[key] or 0) + 1
 
             if count >= config.absence_threshold then
-                callback_fn("absence", key, previous_objects[key])
+                callback_fn("absence", key, previous_objects[key], config)
 
                 -- Remove the object from presence_map as it is now absent
                 presence_map[key] = nil
@@ -85,8 +85,8 @@ end
 
 -- Main function to detect and handle changes
 function M.detect(
-    config: { presence_threshold: number, absence_threshold: number },
-    callback_fn: (string, string, any) -> (),
+    config: any,
+    callback_fn: (string, string, any, any) -> (),
     get_fn: (string) -> any,
     set_fn: (string, any) -> (),
     current_objects: any
