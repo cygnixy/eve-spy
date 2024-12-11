@@ -1,8 +1,10 @@
 presence_threshold = 3
 absence_threshold = 3
+discord_webhook = ""
+discord_username = ""
 
 -> main {
     @repeat_until_success -> {
-        overview_spy(presence_threshold, absence_threshold)
+        overview_spy(presence_threshold, absence_threshold, discord_webhook, discord_username)
     }
 }
