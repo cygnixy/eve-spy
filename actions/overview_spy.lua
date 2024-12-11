@@ -111,7 +111,7 @@ function M.parse_distance(distance_str: string): (number?, string?)
 end
 
 -- Event handler function to process presence and absence events
-function M.event_handler(event_type: string, key: string, data: any)
+function M.event_handler(event_type: string, key: string, data: any, config: any)
     local current_system_name: string = M.get_nested_value(cygnixy.eve, "info_panel_container", "info_panel_location_info",
         "current_solar_system_name") or ""
 
@@ -124,10 +124,14 @@ function M.event_handler(event_type: string, key: string, data: any)
                 formatted_distance = string.format("%.2f %s", distance_num, distance_unit)
             end
         end
-        cygnixy.info(string.format("+|%s|%s|%s|%s", current_system_name, data and data.name or "unknown", data and data.object_type or "unknown", formatted_distance))
+        msg = string.format("+|%s|%s|%s|%s", current_system_name, data and data.name or "unknown", data and data.object_type or "unknown", formatted_distance)
+        cygnixy.info(msg)
+        cygnixy.discord_send(config.discord_webhook, config.discord_username, msg)
     elseif event_type == "absence" then
         local decoded_name, decoded_object_type = decode_key(key)
-        cygnixy.info(string.format("-|%s|%s|%s", current_system_name, decoded_name or "unknown", decoded_object_type or "unknown"))
+        msg = string.format("-|%s|%s|%s", current_system_name, decoded_name or "unknown", decoded_object_type or "unknown")
+        cygnixy.info(msg)
+        cygnixy.discord_send(config.discord_webhook, config.discord_username, msg)
     end
 end
 
@@ -136,6 +140,8 @@ function M.main(args: any): string
     local config = {
         presence_threshold = args[1],
         absence_threshold = args[2],
+        discord_webhook = args[3],
+        discord_username = args[4],
     }
 
     local current_objects = M.process_data(cygnixy.eve.overview_windows) or {}
