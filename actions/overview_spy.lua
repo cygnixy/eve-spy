@@ -32,19 +32,19 @@ local function decode_key(encoded_key: string): (string?, string?)
     local parts = string.split(encoded_key, ":")
     
     if #parts ~= 2 then
-        warn("Invalid encoded key format. Expected format 'Base64(name):Base64(object_type)'.")
+        cygnixy.warn("Invalid encoded key format. Expected format 'Base64(name):Base64(object_type)'.")
         return nil, nil
     end
     
     local success_name, decoded_name = pcall(base64.decode, parts[1])
     if not success_name then
-        warn("Failed to decode Base64 for 'name': " .. tostring(decoded_name))
+        cygnixy.warn("Failed to decode Base64 for 'name': " .. tostring(decoded_name))
         decoded_name = nil
     end
     
     local success_object_type, decoded_object_type = pcall(base64.decode, parts[2])
     if not success_object_type then
-        warn("Failed to decode Base64 for 'object_type': " .. tostring(decoded_object_type))
+        cygnixy.warn("Failed to decode Base64 for 'object_type': " .. tostring(decoded_object_type))
         decoded_object_type = nil
     end
     
@@ -77,7 +77,7 @@ function M.process_data(data: any): { [string]: any }
             end
         end
     else
-        warn("Error: No entries found in data.")
+        cygnixy.warn("Error: No entries found in data.")
     end
 
     return current_objects
@@ -112,7 +112,7 @@ end
 
 -- Event handler function to process presence and absence events
 function M.event_handler(event_type: string, key: string, data: any)
-    local current_system_name: string = M.get_nested_value(eve, "info_panel_container", "info_panel_location_info",
+    local current_system_name: string = M.get_nested_value(cygnixy.eve, "info_panel_container", "info_panel_location_info",
         "current_solar_system_name") or ""
 
     if event_type == "presence" then
@@ -124,10 +124,10 @@ function M.event_handler(event_type: string, key: string, data: any)
                 formatted_distance = string.format("%.2f %s", distance_num, distance_unit)
             end
         end
-        info(string.format("+|%s|%s|%s|%s", current_system_name, data and data.name or "unknown", data and data.object_type or "unknown", formatted_distance))
+        cygnixy.info(string.format("+|%s|%s|%s|%s", current_system_name, data and data.name or "unknown", data and data.object_type or "unknown", formatted_distance))
     elseif event_type == "absence" then
         local decoded_name, decoded_object_type = decode_key(key)
-        info(string.format("-|%s|%s|%s", current_system_name, decoded_name or "unknown", decoded_object_type or "unknown"))
+        cygnixy.info(string.format("-|%s|%s|%s", current_system_name, decoded_name or "unknown", decoded_object_type or "unknown"))
     end
 end
 
@@ -138,7 +138,7 @@ function M.main(args: any): string
         absence_threshold = args[2],
     }
 
-    local current_objects = M.process_data(eve.overview_windows) or {}
+    local current_objects = M.process_data(cygnixy.eve.overview_windows) or {}
     
     change_monitor.detect(config, M.event_handler, cygnixy.bb_get, cygnixy.bb_set, current_objects)
 
