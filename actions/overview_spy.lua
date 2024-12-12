@@ -58,6 +58,8 @@ function M.extract_objects(entry: any): (string?, any?)
             name = entry.object_name,
             object_type = entry.object_type,
             distance = entry.object_distance,
+            alliance = entry.object_alliance,
+            corporation = entry.object_corporation,
         }
         local key = encode_key(data.name, data.object_type)
         return key, data
@@ -110,26 +112,40 @@ function M.parse_distance(distance_str: string): (number?, string?)
     end
 end
 
+local function safe_string(value, fallback)
+    return type(value) == "string" and value or fallback
+end
+
 -- Event handler function to process presence and absence events
 function M.event_handler(event_type: string, key: string, data: any, config: any)
     local current_system_name: string = M.get_nested_value(cygnixy.eve, "info_panel_container", "info_panel_location_info",
         "current_solar_system_name") or ""
 
     if event_type == "presence" then
-        local formatted_distance = "unknown"
+        local formatted_distance = "?"
         -- Check and process distance if available
-        if data and data.distance then
-            local distance_num, distance_unit = M.parse_distance(data.distance)
-            if distance_num and distance_unit then
-                formatted_distance = string.format("%.2f %s", distance_num, distance_unit)
-            end
+        local msg = ""
+        if data then
+            local name = safe_string(data.name, "?")
+            local object_type = safe_string(data.object_type , "?")
+            local object_alliance = safe_string(data.alliance , "?")
+            local object_corporation = safe_string(data.corporation, "?")
+        
+            if data.distance then
+                local distance_num, distance_unit = M.parse_distance(data.distance)
+                if distance_num and distance_unit then
+                    formatted_distance = string.format("%.0f %s", distance_num, distance_unit)
+                end
+            end        
+            msg = string.format("+| %s | %s . %s . %s . %s . %s", current_system_name, name, object_type, object_corporation, object_alliance, formatted_distance)
+        else
+            msg = string.format("+| %s |", current_system_name)
         end
-        msg = string.format("+|%s|%s|%s|%s", current_system_name, data and data.name or "unknown", data and data.object_type or "unknown", formatted_distance)
         cygnixy.info(msg)
         cygnixy.discord_send(config.discord_webhook, config.discord_username, msg)
     elseif event_type == "absence" then
         local decoded_name, decoded_object_type = decode_key(key)
-        msg = string.format("-|%s|%s|%s", current_system_name, decoded_name or "unknown", decoded_object_type or "unknown")
+        msg = string.format("-| %s | %s . %s", current_system_name, decoded_name or "?", decoded_object_type or "?")
         cygnixy.info(msg)
         cygnixy.discord_send(config.discord_webhook, config.discord_username, msg)
     end
